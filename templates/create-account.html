@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>SpotMe</title>
+ <link rel="icon" href="{{ url_for('static', filename='images/icons/tab-icon.png')}}">
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+ <title></title>
+</head>
+
+<body class="login-body">
+ <div class="login-container">
+  <div class="logo">
+   <img src="{{ url_for('static', filename='images/icons/spotme-icon-dark.png')}}" alt="" />
+  </div>
+
+  <div class="form-container">
+   <form method="POST" action="{{ url_for('creating') }}">
+    <div class="user-input">
+     <div>
+      <input type="text" name="email" placeholder="Email" required>
+     </div>
+
+     <div>
+      <input type="text" name="username" placeholder="Username" required>
+     </div>
+
+     <div>
+      <input type="password" name="password" placeholder="Password" required>
+     </div>
+
+     <div>
+      <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+     </div>
+    </div>
+
+    <div class="login-but-reg">
+     <button>Create Account</button>
+
+     <div class="form-links">
+      <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+     </div>
+    </div>
+   </form>
+  </div>
+ </div>
+</body>
+
+</html>

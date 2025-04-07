@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>SpotMe</title>
+ <link rel="icon" href="{{ url_for('static', filename='images/icons/tab-icon.png')}}">
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+ <title></title>
+</head>
+
+<body class="login-body">
+ <div id="overlay"></div>
+
+ <div class="login-container">
+  <div class="logo">
+   <img src="{{ url_for('static', filename='images/icons/spotme-icon-dark.png')}}" alt="" />
+  </div>
+
+  <div class="form-container">
+   <form>
+    <div class="user-input">
+     <div>
+      <input type="text" id="email" name="email" placeholder="Email">
+     </div>
+
+     <div>
+      <input type="text" id="username" name="username" placeholder="Username">
+     </div>
+
+     <div>
+      <input type="password" id="password" name="password" placeholder="Password">
+     </div>
+    </div>
+
+    <button id="btn-deleteAcc">Delete Account</button>
+
+    <div class="form-links">
+     <p>
+      Don't want to delete your account anymore?
+      <a href="{{ url_for('index') }}">Go Back</a>
+     </p>
+    </div>
+   </form>
+  </div>
+ </div>
+
+ <div class="centerer">
+  <div class="popup-deleteAcc">
+   <div class="popup-deleteAcc-container">
+    <h2>Delete Account?</h2>
+
+    <div class="deleteAcc-yesno">
+     <a class="deleteAcc-close">No</a>
+     <a class="deleteAcc-yes">
+      Yes
+     </a>
+    </div>
+   </div>
+  </div>
+
+  <div class="popup-incomplete">
+   <div class="popup-incomplete-container">
+    <h2>Please fill all input fields first!</h2>
+
+    <div class="incomplete-yesno">
+     <a class="incomplete-ok">
+      Ok
+     </a>
+    </div>
+   </div>
+  </div>
+
+  <div class="popup-notfound">
+   <div class="popup-notfound-container">
+    <h2>Account not found or not yours!</h2>
+
+    <div class="notfound-yesno">
+     <a class="notfound-ok">
+      Ok
+     </a>
+    </div>
+   </div>
+  </div>
+ </div>
+</body>
+
+<script src="{{ url_for('static', filename='js/back_and_reset.js') }}"></script>
+<script src="{{ url_for('static', filename='js/delete_account.js') }}"></script>
+
+</html>

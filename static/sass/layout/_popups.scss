@@ -1,0 +1,223 @@
+.centerer {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 100vw;
+	height: 100vh;
+	display: none;
+	justify-content: center;
+	align-items: center;
+}
+
+.centerer-toggled {
+	display: flex;
+}
+
+.popup-logout {
+  display: none;
+  width: 338px;
+  height: 150px;
+  border-radius: 5px;
+  background-color: #282828;
+  color: $foreground-dark;
+  animation: popup 0.2s;
+  z-index: 5;
+
+  &-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 30px;
+
+    .logout-yesno {
+      display: flex;
+      gap: 100px;
+      font-size: 1.5rem;
+
+      .logout-yes {
+        background-color: $accent-new;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+        border: solid 1px transparent;
+      }
+
+      .logout-close {
+        background-color: transparent;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+        border: solid 1px #3e3e3e;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.popup-logout-toggled {
+  display: block;
+}
+
+.popup-changePW {
+  display: none;
+  width: 338px;
+  height: 150px;
+  border-radius: 5px;
+  background-color: #282828;
+  color: $foreground-dark;
+  animation: popup 0.2s;
+  z-index: 5;
+
+  &-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 30px;
+
+    .changePW-yesno {
+      display: flex;
+      gap: 100px;
+      font-size: 1.5rem;
+
+      .changePW-yes {
+        background-color: $accent-new;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+        border: solid 1px transparent;
+      }
+
+      .changePW-close {
+        background-color: transparent;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+        border: solid 1px #3e3e3e;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.popup-changePW-toggled {
+  display: block;
+}
+
+.popup-deleteAcc {
+  display: none;
+  width: 338px;
+  height: 150px;
+  border-radius: 5px;
+  background-color: #282828;
+  color: $foreground-dark;
+  animation: popup 0.2s;
+  z-index: 5;
+
+  &-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 30px;
+
+    .deleteAcc-yesno {
+      display: flex;
+      gap: 100px;
+      font-size: 1.5rem;
+
+      .deleteAcc-yes {
+        background-color: $accent-new;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+        border: solid 1px transparent;
+      }
+
+      .deleteAcc-close {
+        background-color: transparent;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+        border: solid 1px #3e3e3e;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.popup-deleteAcc-toggled {
+  display: block;
+}
+
+.popup-incomplete {
+  display: none;
+  width: 338px;
+  height: 150px;
+  border-radius: 5px;
+  background-color: #282828;
+  color: $foreground-dark;
+  animation: popup 0.2s;
+  z-index: 5;
+
+  &-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 30px;
+
+    .incomplete-yesno {
+      display: flex;
+      gap: 100px;
+      font-size: 1.5rem;
+
+      .incomplete-ok {
+        background-color: $accent-new;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+        border: solid 1px transparent;
+      }
+    }
+  }
+}
+
+.popup-incomplete-toggled {
+  display: block;
+}
+
+.popup-notfound {
+  display: none;
+  width: 338px;
+  height: 150px;
+  border-radius: 5px;
+  background-color: #282828;
+  color: $foreground-dark;
+  animation: popup 0.2s;
+  z-index: 5;
+
+  &-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 30px;
+
+    .notfound-yesno {
+      display: flex;
+      gap: 100px;
+      font-size: 1.5rem;
+
+      .notfound-ok {
+        background-color: $accent-new;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+        border: solid 1px transparent;
+      }
+    }
+  }
+}
+
+.popup-notfound-toggled {
+  display: block;
+}
