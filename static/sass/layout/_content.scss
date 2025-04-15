@@ -136,6 +136,7 @@
 		.video-container {
 			height: 100%;
 			background-color: #282828;
+      position: relative;
 
 			img {
 				position: relative;
@@ -167,6 +168,24 @@
 			z-index: 1;
 
 			.btn-ps {
+				width: 3rem;
+				border: none;
+				border-radius: 3px;
+				background-color: transparent;
+				font-size: 3rem;
+				font-weight: 700;
+				cursor: pointer;
+				color: $accent-new;
+			}
+		}
+
+    .full-pos {
+			position: relative;
+			bottom: 135px;
+			left: 320px;
+			z-index: 1;
+
+			.btn-full {
 				width: 3rem;
 				border: none;
 				border-radius: 3px;
@@ -361,6 +380,11 @@
 
       .pause-pos {
         bottom: 73px;
+      }
+
+      .full-pos {
+        bottom: 111px;
+        left: 415px;
       }
 		}
 

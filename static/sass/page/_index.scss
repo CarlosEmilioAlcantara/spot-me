@@ -43,6 +43,32 @@
 			height: 100%;
 			transform: translateY(9%);
 		}
+
+    .dropdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      span {
+        font-size: 1.6rem;
+      }
+    }
+
+    .termstips-chevron-down {
+      display: inline;
+    }
+
+    .termstips-chevron-up {
+      display: none;
+    }
+    
+    .termstips-chevron-down-toggled {
+      display: none;
+    }
+    
+    .termstips-chevron-up-toggled {
+      display: inline;
+    }
 	}
 }
 

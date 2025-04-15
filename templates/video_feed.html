@@ -125,6 +125,12 @@
      {{font_awesome.render_icon("fas fa-play")}}
     </button>
    </div>
+
+   <div class="full-pos">
+    <button class="btn-full" id="btn-full">
+     {{font_awesome.render_icon("fas fa-expand")}}
+    </button>
+   </div>
   </div>
  </div>
 
@@ -247,6 +253,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/toggle_pause.js')}}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/tutorial_popup.js')}}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/save-exercise.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/full_screen.js')}}"></script>
 
 {% if exercise == "barbell_curl" %}
  <script type="text/javascript" src="../static/js/fetch_exercise_data.js" data-param1="barbell_curl"></script>

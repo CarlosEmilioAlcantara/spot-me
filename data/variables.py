@@ -1,4 +1,18 @@
 # Global variables for exercise tracking
+EXERCISES = [
+    "barbell_curl",
+    "dumbbell_bicep_curl",
+    "bench_press",
+    "dumbbell_bench_press",
+    "barbell_press",
+    "dumbbell_press",
+    "lateral_raises",
+    "pull_ups",
+    "barbell_rows",
+    "squat",
+    "deadlift"
+]
+
 counter = {
     "barbell_curl": 0,
     "dumbbell_bicep_curl": 0, 

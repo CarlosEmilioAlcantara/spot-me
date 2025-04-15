@@ -38,7 +38,8 @@
 
   <script>
    const exercises = [
-    "bench_press", "dumbbell_bench_press", "pull_ups",
+    //"bench_press", "dumbbell_bench_press", 
+    "pull_ups",
     "barbell_rows", "barbell_press", "dumbbell_press", "lateral_raises",
     "barbell_curl", "squat", "deadlift"
    ];
@@ -51,14 +52,14 @@
     let chart;
 
     switch (exercise) {
-     case "bench_press":
+     /*case "bench_press":
       stats = "statsChartBenchPress";
       name = "Bench Press";
       break;
      case "dumbbell_bench_press":
       stats = "statsChartDumbbellBenchPress";
       name = "Dumbbell Bench Press";
-      break;
+      break;*/
      case "pull_ups":
       stats = "statsChartPullUps";
       name = "Pull Ups";

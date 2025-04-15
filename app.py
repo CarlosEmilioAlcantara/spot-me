@@ -1,21 +1,237 @@
+from data.variables import *
+
+################################################################################
+#### FLASK SETUP
+################################################################################
+from flask import Flask, jsonify, render_template, redirect, request, url_for, \
+    Response, session
+from flask_font_awesome import FontAwesome
+app = Flask(__name__)
+app.secret_key  = "sikretong_susi"
+
+font_awesome = FontAwesome(app)
+
+################################################################################
+#### DATABASE
+################################################################################
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import inspect
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:BJRDxRWqoELeILuQGjVfmIlrkFlPuBqU@gondola.proxy.rlwy.net:40846/railway"
+
+db = SQLAlchemy(app)
+dynamic_models = {}
+
+class Accounts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), nullable=False) 
+    username = db.Column(db.String(200), nullable=False) 
+    password = db.Column(db.String(200), nullable=False) 
+
+def create_table_name(username, exercise):
+    return f"{username}_{exercise}".replace(" ", "")
+
+def table_exists(table_name):
+    inspector = inspect(db.engine)
+
+    return table_name in inspector.get_table_names()
+
+def create_table_class(table_name):
+    if table_name in dynamic_models:
+        return dynamic_models[table_name]
+
+    model = type(
+        table_name,
+        (db.Model,),
+        {
+            "__tablename__": table_name,
+            "id": db.Column(db.Integer, primary_key=True),
+            "date": db.Column(db.String(200), nullable=False),
+            "repetitions": db.Column(db.Integer, nullable=False) 
+        }
+    )
+
+    dynamic_models[table_name] = model
+    return model
+
+def create_tables():
+    with app.app_context():
+        for exercise in EXERCISES:
+            table_name = create_table_name(session.get("username"), exercise)
+
+            if not table_exists(table_name):
+                model = create_table_class(table_name)
+                model.__table__.create(bind=db.engine)
+
+################################################################################
+#### ACCOUNT MANAGEMENT
+################################################################################
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/login/loging", methods=["POST"])
+def login_account():
+    if request.method == "POST":
+        data = request.get_json()
+        user = Accounts.query.filter_by(username=data.get("username")).first()
+            
+        if not user:
+            return jsonify({"response": 404})
+        else:
+            password = data.get("password")
+            check = user.password
+
+            if password == check:
+                session["id"] = user.id
+                session["username"] = user.username
+                create_tables()
+
+                return jsonify({"response": 200})
+            else:
+                return jsonify({"response": 400})
+
+@app.route("/create-account")
+def create_account():
+    return render_template("create-account.html")
+
+@app.route("/create-account/creating", methods=["POST"])
+def creating():
+    if request.method == "POST":
+        data = request.get_json()
+
+        password = data.get("password")
+        confirmation = data.get("confirmPassword")
+        username = data.get("username")
+        user = Accounts.query.filter_by(username=username).first()
+
+        if not user:
+          if len(password) < 8:
+                return jsonify({"response": 404})
+          elif password == confirmation:
+                user = Accounts(
+                    email=data.get("email"),
+                    username=username,
+                    password=password
+                )
+
+                db.session.add(user)
+                db.session.commit()
+
+                return jsonify({"response": 200})
+          else:
+                return jsonify({"response": 400})
+        else:
+            return jsonify({"response": 405})
+
+@app.route("/forgot-password")
+def forgot_password():
+    return render_template("forgot-password.html")
+
+@app.route("/forgot-password/changing", methods = ["POST"])
+def changing_forgot():
+    if request.method == "POST":
+        data = request.get_json()
+        user = Accounts.query.filter_by(username=data.get("username")).first()
+
+        if not user:
+            return jsonify({"response": 404})
+        else:
+            email = data.get("email")
+
+            if email == user.email:
+                password = data.get("password")
+                confirmation = data.get("confirmPassword")
+
+                if password == confirmation:
+                    user.password = password
+
+                    db.session.add(user)
+                    db.session.commit()                
+
+                    return jsonify({"response": 200})
+                else:
+                    return jsonify({"response": 400})
+            else:
+                return jsonify({"response": 401})
+
+@app.route("/change-password")
+def change_password():
+    return render_template("change-password.html")
+
+@app.route("/change-password/changing", methods = ["POST"])
+def changing_change():
+    if request.method == "POST":
+        data = request.get_json()
+        user = Accounts.query.filter_by(username=data.get("username")).first()
+
+        if not user:
+            return jsonify({"response": 404})
+        elif user.id != session.get("id"):
+            return jsonify({"response": 401})
+        else:
+            email = data.get("email")
+            oldPassword = data.get("oldPassword")
+            newPassword = data.get("newPassword")
+
+            if email != user.email:
+                return jsonify({"response": 403})
+            elif oldPassword != user.password:
+                return jsonify({"response": 405})
+            else:
+                user.password = newPassword
+
+                db.session.add(user)
+                db.session.commit()                
+
+                return jsonify({"response": 200})
+
+@app.route("/delete-account")
+def delete_account():
+    return render_template("delete-account.html")
+
+@app.route("/delete-account/deleting", methods = ["POST"])
+def deleting():
+    if request.method == "POST":
+        data = request.get_json()
+        user = Accounts.query.filter_by(username=data.get("username")).first()
+
+        if not user:
+            return jsonify({"response": 404})
+        elif user.id != session.get("id"):
+            return jsonify({"response": 401})
+        else:
+            email = data.get("email")
+            password = data.get("password")
+
+            if email != user.email:
+                return jsonify({"response": 403})
+            elif password != user.password:
+                return jsonify({"response": 405})
+            else:
+                db.session.delete(user)
+                db.session.commit()                
+
+                return jsonify({"response": 200})
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    
+    return redirect(url_for("login"))
+
+################################################################################
+#### FORM ANALYSIS
+################################################################################
 import cv2
 import mediapipe as mp
 import numpy as np
 
 from threading import Event
 
-from flask import Flask, jsonify, render_template, redirect, request, url_for, \
-    Response, session
-from flask_font_awesome import FontAwesome
-
-from functions.accounts.accounts import initialize_database, create, check, \
-    delete, change, create_tables, add_exercise, get_exercise, delete_exercise
-
-from functions.databases.terminologies import initialize_terminologies, \
-    get_terminologies, get_all_terminologies
-from functions.databases.tips import initialize_tips, get_tips, get_all_tips
-
-from collections import OrderedDict
+mp_drawing = mp.solutions.drawing_utils
+mp_pose = mp.solutions.pose
+camera = cv2.VideoCapture(0)
 
 from functions.face_detection.face_detection import detect_face
 from functions.coordinates.coordinates import get_coords
@@ -24,70 +240,9 @@ from functions.statuses.statuses import get_distance_wrists_status, \
     get_distance_elbows_status, get_distance_knees_status, \
     get_distance_ankles_status
 # from functions.critique.critique import get_critique_upper, get_critique_lower
+from functions.text_to_speech.text_to_speech import text_to_speech
 
-# from functions.text_to_speech.text_to_speech import text_to_speech
-
-from data.variables import *
-
-import queue
-import threading
-import simpleaudio as sa
-
-from gtts import gTTS
-from pydub import AudioSegment
-from io import BytesIO
-
-tts_cache = {}
-playback_lock = threading.Lock()
-playback_thread = None
-playback_queue = queue.Queue()
-current_playback = {"player": None, "thread": None}
-
-def stop_current_playback():
-    if current_playback["player"] is not None:
-        current_playback["player"].stop()
-        current_playback["player"] = None
-        
-    if (current_playback["thread"] and current_playback["thread"].is_alive()
-        and current_playback["thread"] != threading.current_thread()):
-        current_playback["thread"].join()
-        
-
-def play_tts(audio_data):
-    stop_current_playback()
-    
-  
-    player = sa.play_buffer(audio_data.raw_data,
-                            num_channels=audio_data.channels,
-                            bytes_per_sample=audio_data.sample_width,
-                            sample_rate=audio_data.frame_rate)
-  
-      
-    current_playback["player"] = player
-
-
-
-# Voiced critique/motivation
-def text_to_speech(text):
-    def run_tts():
-        try:
-            speech = gTTS(text, lang='en', tld='co.uk', slow=False)
-
-            to_speek = BytesIO()
-            speech.write_to_fp(to_speek)
-            to_speek.seek(0)
-            spoken_text = AudioSegment.from_file(to_speek, format="mp3")
-
-            play_tts(spoken_text)
-        except Exception as e:
-            print(f"Error in TTS: {e}")
-
-
-    stop_current_playback()
-
-    tts_thread = threading.Thread(target=run_tts, daemon=True)
-    current_playback["thread"] = tts_thread
-    tts_thread.start()
+pause_event = Event()
 
 def get_critique_upper( 
                  exercise, 
@@ -127,21 +282,6 @@ def get_critique_lower(
     if voice_critique and voice_critique != last_critique[exercise]:
         text_to_speech(voice_critique)
         last_critique[exercise] = voice_critique
-
-initialize_database()
-
-# Mediapipe setup
-mp_drawing = mp.solutions.drawing_utils
-mp_pose = mp.solutions.pose
-
-# Initialize Flask app
-app = Flask(__name__)
-app.secret_key  = "sikretong_susi"
-font_awesome = FontAwesome(app)
-camera = cv2.VideoCapture(0)
-
-# Pause event
-pause_event = Event()
 
 def analyze_barbell_curl(results, image, exercise):
     global counter, stage, last_critique, distance_wrists, \
@@ -699,316 +839,9 @@ def create_frames(exercise):
             yield (b"--frame\r\n"
                    b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
-@app.route("/stats/<exercise>")
-def stats(exercise):
-    chosen_exercise = get_exercise(session["username"], exercise)
-
-    match exercise:
-        case "barbell_curl":
-            name_exercise = "Barbell Bicep Curl"
-        case "dumbbell_bicep_curl":
-            name_exercise = "Dumbbell Bicep Curl"
-        case "bench_press":
-            name_exercise = "Bench Press"
-        case "dumbbell_bench_press":
-            name_exercise = "Dumbbell Bench Press"                    
-        case "barbell_press":
-            name_exercise = "Barbell Press"
-        case "dumbbell_press":
-            name_exercise = "Dumbbell Press"
-        case "pull_ups":
-            name_exercise = "Pull Ups"
-        case "barbell_rows":
-            name_exercise = "Barbell Rows"
-        case "squat":
-            name_exercise = "Squat"
-        case "deadlift":
-            name_exercise = "Deadlift"
-        case "lateral_raises":
-            name_exercise = "Lateral Raises"
-
-    ids = []
-    dates = []
-    exercise_reps = []
-    workouts = {}
-
-    for reps in enumerate(chosen_exercise):
-        ids.append(reps[1][0])
-        exercise_reps.append(reps[1][2])
-        dates.append(reps[1][1]) 
-
-    for _id, date, reps in zip(ids, dates, exercise_reps):
-        workouts[_id] = (date, reps)
-
-    workouts = OrderedDict(reversed(list(workouts.items())))
-
-    return render_template(
-        "stats.html", 
-        exercise=exercise, 
-        chosen_exercise=chosen_exercise,
-        name_exercise=name_exercise,
-        workouts=workouts
-    )
-
-@app.route("/get_progress/<exercise>/<duration>", methods=["POST"])
-def get_progress(exercise, duration):
-    exercise = get_exercise(session["username"], exercise)
-    collected_reps = []
-
-    for reps in enumerate(exercise):
-        collected_reps.append(reps[1][2])
-    
-    match duration:
-        case "weekly":
-            collected_reps = collected_reps[-7:]
-        case "monthly":
-            collected_reps = collected_reps[-30:]
-        case _:
-            pass
-
-    return jsonify({"reps": collected_reps})
-
-@app.route("/delete_set/<exercise>/<_id>", methods=["POST"])
-def delete_set(exercise, _id):
-    delete_exercise(session["username"], _id, exercise)
-
-    return jsonify({"status": "deleted"})
-
-@app.route("/video_feed")
-def video_feed():
-    return render_template("video_feed.html")
-
-@app.route("/video/<exercise>")
-def video(exercise):
-    return Response(create_frames(exercise), mimetype="multipart/x-mixed-replace; boundary=frame")
-
-@app.route("/exercise_data/<exercise>", methods=["GET"])
-def exercise_data(exercise):
-    global last_critique, counter, stage, distance_wrists_status, \
-        distance_elbows_status, distance_knees_status, distance_ankles_status
-
-    if exercise in counter:
-        return jsonify({
-            "critique": last_critique.get(exercise, "No critique yet"),
-            "counter": counter.get(exercise, 0),
-            "stage": stage.get(exercise, 0),
-            "wristsDistanceStatus": distance_wrists_status,
-            "elbowsDistanceStatus": distance_elbows_status,
-            "kneesDistanceStatus": distance_knees_status,
-            "anklesDistanceStatus": distance_ankles_status
-        })
-    else:
-        return jsonify({"critique": "Invalid exercise", "counter": 0})
-    
-@app.route("/reset_counter", methods=["POST"])
-def reset_counter():
-    global counter
-
-    counter = {
-        "barbell_curl": 0,
-        "dumbbell_bicep_curl": 0, 
-        "bench_press": 0, 
-        "dumbbell_bench_press": 0, 
-        "barbell_press": 0,
-        "dumbbell_press": 0,
-        "lateral_raises": 0,
-        "pull_ups": 0,
-        "squat": 0,
-        "deadlift": 0,        
-        "barbell_rows": 0
-    }
-
-    return ("", 204)
-    
-@app.route("/save/<exercise>", methods=["GET", "POST"])
-def save(exercise):
-    count = str(counter.get(exercise, 0))
-    
-    add_exercise(session["username"], count, exercise)
-    reset_counter()
-
-    return redirect(url_for("stats", exercise=exercise))
-
-@app.route("/toggle_pause", methods=["POST"])
-def toggle_pause():
-    if pause_event.is_set():
-        pause_event.clear()
-    else:
-        pause_event.set()
-
-    return {"status": "paused" if not pause_event.is_set() else "running"}
-
-@app.route("/toggle_tutorial", methods=["POST"])
-def toggle_tutorial():
-    pause_event.clear()
-
-    return {"status": "paused"}
-
-@app.route("/close_tutorial", methods=["POST"])
-def close_tutorial():
-    pause_event.set()
-
-    return {"status": "running"}
-
-@app.route("/reset_pause", methods=["POST"])
-def reset_pause():
-    pause_event.set()
-
-    return {"status": "running"}
-
-@app.route("/search/terminologies", methods=["POST"])
-def search_terminologies():
-    data = request.get_json()
-    term = data.get("searchTerm")
-    terms = get_terminologies(term)
-    
-    return jsonify(terms)
-
-@app.route("/all_terminologies", methods=["POST"])
-def all_terminologies():
-    terms = get_all_terminologies()
-    
-    return jsonify(terms)
-    
-@app.route("/all_tips", methods=["POST"])
-def all_tips():
-    terms = get_all_tips()
-    
-    return jsonify(terms)
-
-@app.route("/search/tips", methods=["POST"])
-def search_tips():
-    data = request.get_json()
-    tip = data.get("searchTerm")
-    tips = get_tips(tip)
-    
-    return jsonify(tips)
-
-# Account routings
-@app.route("/login")
-def login():
-    return render_template("login.html")
-
-@app.route("/login/checking", methods=["GET", "POST"])
-def checking():
-    if request.method == "POST":
-        email_username = request.form["email_username"]
-        password = request.form["password"]
-        username = check(email_username, password)
-
-        if username:
-            session["username"] = username
-
-            return redirect(url_for("index"))
-        
-    return render_template("login.html")
-
-@app.route("/create-account")
-def create_account():
-    return render_template("create-account.html")
-    
-@app.route("/create-account/creating", methods = ["GET", "POST"])
-def creating():
-    if request.method == "POST":
-        email = request.form["email"]        
-        username = request.form["username"]
-        password = request.form["password"]
-        confirmation = request.form["confirm_password"]
-
-        if create(email, username, password, confirmation):
-            return redirect(url_for("login"))
-        
-    return render_template("create-account.html")
-
-@app.route("/forgot-password")
-def forgot_password():
-    return render_template("forgot-password.html")
-
-@app.route("/change-password")
-def change_password():
-    return render_template("change-password.html")
-
-@app.route("/change-password/changing", methods = ["POST"])
-def changingChange():
-    if request.method == "POST":
-        data = request.get_json()
-
-        email = data.get("email")
-        username = data.get("username")
-        password = data.get("newPassword")
-        confirmation = data.get("confirmPassword")
-
-        if username == session.get("username"):
-            change(email, username, password, confirmation)
-
-            return jsonify({"changed": True})
-        else:
-            return jsonify({"changed": False})
-
-@app.route("/forgot-password/changing", methods = ["POST"])
-def changingForgot():
-    if request.method == "POST":
-        email_username = request.form["email_username"]
-        password = request.form["password"]
-        confirmation = request.form["confirm_password"]
-
-        change(email_username, password, confirmation)
-
-        session.clear()
-
-    return redirect(url_for("login"))
-
-@app.route("/delete-account")
-def delete_account():
-    return render_template("delete-account.html")
-
-@app.route("/delete-account/deleting", methods = ["POST"])
-def deleting():
-    if request.method == "POST":
-        data = request.get_json()
-
-        email = data.get("email")        
-        username = data.get("username")
-        password = data.get("password")
-
-        if delete(email, username, password):
-            session.clear()
-
-            return jsonify({"deleted": True})
-        else:
-            return jsonify({"deleted": False})
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    
-    return redirect(url_for("login"))
-
-@app.route("/")
-def homepage():
-    return render_template("homepage.html")
-
-@app.route("/index")
-def index():
-    create_tables(session["username"])
-    initialize_terminologies()
-    initialize_tips()
-
-    return render_template("index.html")
-
-@app.route("/categories")
-def categories():
-
-    return render_template("categories.html")
-
-@app.route("/terminologies")
-def terminologies():
-    return render_template("terminologies.html")
-
-@app.route("/tips")
-def tips():
-    return render_template("tips.html")
-
+################################################################################
+#### EXERCISE ROUTES
+################################################################################
 @app.route("/chest")
 def chest():
     return render_template("chest.html")
@@ -1094,7 +927,259 @@ def deadlift():
     exercise = "deadlift"
 
     return render_template("video_feed.html", exercise=exercise)   
-   
+
+################################################################################
+#### VIDEO FEED
+################################################################################
+@app.route("/video_feed")
+def video_feed():
+    return render_template("video_feed.html")
+
+@app.route("/video/<exercise>")
+def video(exercise):
+    return Response(create_frames(exercise), mimetype="multipart/x-mixed-replace; boundary=frame")
+
+@app.route("/toggle_pause", methods=["POST"])
+def toggle_pause():
+    if pause_event.is_set():
+        pause_event.clear()
+    else:
+        pause_event.set()
+
+    return {"status": "paused" if not pause_event.is_set() else "running"}
+
+@app.route("/toggle_tutorial", methods=["POST"])
+def toggle_tutorial():
+    pause_event.clear()
+
+    return {"status": "paused"}
+
+@app.route("/exercise_data/<exercise>", methods=["GET"])
+def exercise_data(exercise):
+    global last_critique, counter, stage, distance_wrists_status, \
+        distance_elbows_status, distance_knees_status, distance_ankles_status
+
+    if exercise in counter:
+        return jsonify({
+            "critique": last_critique.get(exercise, "No critique yet"),
+            "counter": counter.get(exercise, 0),
+            "stage": stage.get(exercise, 0),
+            "wristsDistanceStatus": distance_wrists_status,
+            "elbowsDistanceStatus": distance_elbows_status,
+            "kneesDistanceStatus": distance_knees_status,
+            "anklesDistanceStatus": distance_ankles_status
+        })
+    else:
+        return jsonify({"critique": "Invalid exercise", "counter": 0})
+    
+@app.route("/reset_counter", methods=["POST"])
+def reset_counter():
+    global counter
+
+    counter = {
+        "barbell_curl": 0,
+        "dumbbell_bicep_curl": 0, 
+        "bench_press": 0, 
+        "dumbbell_bench_press": 0, 
+        "barbell_press": 0,
+        "dumbbell_press": 0,
+        "lateral_raises": 0,
+        "pull_ups": 0,
+        "squat": 0,
+        "deadlift": 0,        
+        "barbell_rows": 0
+    }
+
+    return ("", 204)
+
+################################################################################
+#### EXERCISE STATS
+################################################################################
+import datetime
+
+from typing import OrderedDict
+
+@app.route("/save/<exercise>", methods=["GET", "POST"])
+def save(exercise):
+    table_name = create_table_name(session.get("username"), exercise)
+    model_class = dynamic_models.get(table_name)
+
+    if model_class is None:
+        model_class = create_table_class(table_name)
+
+    date = datetime.datetime.now()
+    count = str(counter.get(exercise, 0))
+
+    workout = model_class(
+        date=date.strftime("%m/%d/%Y %I:%M:%S%p"),
+        repetitions=count
+    )    
+
+    db.session.add(workout)
+    db.session.commit()
+
+    return redirect(url_for("stats", exercise=exercise))
+
+@app.route("/stats/<exercise>")
+def stats(exercise):
+    table_name = create_table_name(session.get("username"), exercise)
+    model_class = dynamic_models.get(table_name)
+
+    if model_class is None:
+        model_class = create_table_class(table_name)
+
+    if model_class:
+        exercise_data = model_class.query.all()
+
+    ids = []
+    dates = []
+    exercise_reps = []
+    workouts = {}
+
+    for row in exercise_data:
+        ids.append(row.id)
+        exercise_reps.append(row.repetitions)
+        dates.append(row.date) 
+
+    for _id, date, reps in zip(ids, dates, exercise_reps):
+        workouts[_id] = (date, reps)
+
+    workouts = OrderedDict(reversed(list(workouts.items())))
+
+    match exercise:
+        case "barbell_curl":
+            name_exercise = "Barbell Bicep Curl"
+        case "dumbbell_bicep_curl":
+            name_exercise = "Dumbbell Bicep Curl"
+        case "bench_press":
+            name_exercise = "Bench Press"
+        case "dumbbell_bench_press":
+            name_exercise = "Dumbbell Bench Press"                    
+        case "barbell_press":
+            name_exercise = "Barbell Press"
+        case "dumbbell_press":
+            name_exercise = "Dumbbell Press"
+        case "pull_ups":
+            name_exercise = "Pull Ups"
+        case "barbell_rows":
+            name_exercise = "Barbell Rows"
+        case "squat":
+            name_exercise = "Squat"
+        case "deadlift":
+            name_exercise = "Deadlift"
+        case "lateral_raises":
+            name_exercise = "Lateral Raises"
+
+    return render_template(
+        "stats.html", 
+        exercise=exercise, 
+        name_exercise=name_exercise,
+        workouts=workouts
+    )
+
+@app.route("/get_progress/<exercise>/<duration>", methods=["POST"])
+def get_progress(exercise, duration):
+    table_name = create_table_name(session.get("username"), exercise)
+    model_class = dynamic_models.get(table_name)
+
+    if model_class is None:
+        model_class = create_table_class(table_name)
+
+    if model_class:
+        exercise_data = model_class.query.all()
+
+    collected_reps = []
+
+    for row in exercise_data:
+        collected_reps.append(row.repetitions)
+    
+    match duration:
+        case "weekly":
+            collected_reps = collected_reps[-7:]
+        case "monthly":
+            collected_reps = collected_reps[-30:]
+        case _:
+            pass
+
+    return jsonify({"reps": collected_reps})
+
+@app.route("/delete_set/<exercise>/<_id>", methods=["POST"])
+def delete_set(exercise, _id):
+    table_name = create_table_name(session.get("username"), exercise)
+    model_class = dynamic_models.get(table_name)
+
+    if model_class is None:
+        model_class = create_table_class(table_name)
+
+    workout = model_class.query.filter_by(id=_id).first()
+
+    if workout:
+        db.session.delete(workout)
+        db.session.commit()
+
+        return jsonify({"status": "deleted"})
+
+################################################################################
+#### ADDITIONAL INFO
+################################################################################
+@app.route("/search/terminologies", methods=["POST"])
+def search_terminologies():
+    data = request.get_json()
+    term = data.get("searchTerm")
+    terms = get_terminologies(term)
+    
+    return jsonify(terms)
+
+@app.route("/all_terminologies", methods=["POST"])
+def all_terminologies():
+    terms = get_all_terminologies()
+    
+    return jsonify(terms)
+    
+@app.route("/all_tips", methods=["POST"])
+def all_tips():
+    terms = get_all_tips()
+    
+    return jsonify(terms)
+
+@app.route("/search/tips", methods=["POST"])
+def search_tips():
+    data = request.get_json()
+    tip = data.get("searchTerm")
+    tips = get_tips(tip)
+    
+    return jsonify(tips)
+
+################################################################################
+#### MAIN PAGES
+################################################################################
+from functions.databases.terminologies import initialize_terminologies, \
+    get_terminologies, get_all_terminologies
+from functions.databases.tips import initialize_tips, get_tips, get_all_tips
+
+@app.route("/")
+def homepage():
+    return render_template("homepage.html")
+
+@app.route("/index")
+def index():
+    initialize_terminologies()
+    initialize_tips()
+
+    return render_template("index.html")
+
+@app.route("/categories")
+def categories():
+
+    return render_template("categories.html")
+
+@app.route("/terminologies")
+def terminologies():
+    return render_template("terminologies.html")
+
+@app.route("/tips")
+def tips():
+    return render_template("tips.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

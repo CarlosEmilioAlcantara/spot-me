@@ -7,13 +7,13 @@ const logoutClose = document.querySelector(".logout-close");
 const logoutYes = document.querySelector(".logout-yes");
 
 btnLogout.addEventListener("click", () => {
-  popupLogout.classList.toggle("popup-logout-toggled");
+  popupLogout.classList.toggle("popup-toggled");
   centerer.classList.toggle("centerer-toggled");
   overlay.style.zIndex = "5";
 });
 
 logoutClose.addEventListener("click", () => {
-  popupLogout.classList.remove("popup-logout-toggled");
+  popupLogout.classList.remove("popup-toggled");
   centerer.classList.remove("centerer-toggled");
   overlay.style.zIndex = "4";
 });
@@ -21,6 +21,6 @@ logoutClose.addEventListener("click", () => {
 logoutYes.addEventListener("click", () => {
   centerer.classList.remove("centerer-toggled");
   overlay.classList.remove("overlay-toggled");
-  popupLogout.classList.remove("popup-logout-toggled");
+  popupLogout.classList.remove("popup-toggled");
 });
 

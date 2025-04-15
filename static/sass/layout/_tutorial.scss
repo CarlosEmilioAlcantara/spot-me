@@ -41,6 +41,29 @@
 			margin-bottom: 1rem;
 			cursor: pointer;
 
+      .chevron-step1 {
+        margin-left: 244px !important;
+        display: none;
+      }
+
+      .chevron-down {
+        margin-left: 240px;
+        display: inline;
+      }
+      
+      .chevron-down-toggled {
+        display: none;
+      }
+  
+      .chevron-up {
+        margin-left: 240px;
+        display: none;
+      }
+
+      .chevron-up-toggled {
+        display: inline;
+      }
+
 			hr {
 				border: 1px solid $accent-new;
         margin-bottom: 12px;
@@ -70,6 +93,7 @@
 			height: 100%;
 			transform: translateY(4%);
 		}
+
 	}
 }
 
@@ -108,5 +132,21 @@
 @media (min-width: 580px) {
 	.tutorial {
     width: 536px;
+
+    .tutorial-container {
+      .terms-tips {
+        .chevron-step1 {
+          margin-left: 406px !important;
+        }
+  
+        .chevron-down {
+          margin-left: 402px;
+        }
+        
+        .chevron-up {
+          margin-left: 402px;
+        }
+      }
+    }
   }
 }

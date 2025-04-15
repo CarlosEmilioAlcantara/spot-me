@@ -59,7 +59,13 @@
 		</li>
 
 		<li class="account-settings">
-			<p>Account Settings</p>
+			<div class="sidebar-dropdown-header">
+        <p>Account Settings</p>
+
+        <span class="sidebar-chevron-down">{{ font_awesome.render_icon("fas fa-chevron-down") }}</span>
+        <span class="sidebar-chevron-up">{{ font_awesome.render_icon("fas fa-chevron-up") }}</span>
+      </div>
+      
 			<hr />
 
 			<div class="account-settings__content">
@@ -92,13 +98,13 @@
 </div>
 
 <div class="centerer">
-	<div class="popup-logout">
-		<div class="popup-logout-container">
+	<div class="popup popup-logout">
+		<div class="popup-container">
 			<h2>Logout?</h2>
 
-			<div class="logout-yesno">
-				<a class="logout-close">No</a>
-				<a class="logout-yes" href="{{ url_for('logout') }}">
+			<div class="popup-yesno">
+				<a class="popup-close logout-close">No</a>
+				<a class="popup-yes logout-yes" href="{{ url_for('logout') }}">
 					Yes
 				</a>
 			</div>

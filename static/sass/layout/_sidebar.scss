@@ -86,3 +86,37 @@
 #no-change {
   cursor: pointer;
 }
+
+.sidebar-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  span {
+    font-size: 1.6rem;
+  }
+}
+
+.sidebar-chevron-down {
+  display: inline;
+}
+
+.sidebar-chevron-up {
+  display: none;
+}
+
+.sidebar-chevron-down-toggled {
+  display: none;
+}
+
+.sidebar-chevron-up-toggled {
+  display: inline;
+}
+
+@media (min-width: 580px) {
+  .account-settings__content {
+    a {
+      font-size: 1.4rem;
+    }
+  }
+}

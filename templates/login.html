@@ -17,14 +17,16 @@
 		</div>
 
 		<div class="form-container">
-			<form action="{{ url_for('checking') }}" method="POST">
+   <div id="overlay"></div>
+
+			<form>
 				<div class="user-input">
 					<div>
-						<input type="text" name="email_username" placeholder="Username or Email" required />
+						<input type="text" id="username" name="username" placeholder="Username" />
 					</div>
 
 					<div>
-						<input type="password" name="password" placeholder="Password" required />
+						<input type="password" id="password" name="password" placeholder="Password" />
 						<div class="form-links fl-pw">
 							<a href="{{ url_for('forgot_password') }}">Forgot your password?</a>
 						</div>
@@ -32,7 +34,7 @@
 				</div>
 
 				<div class="login-but-reg">
-					<button>Login</button>
+					<button id="btn-login">Login</button>
 
 					<div class="form-links">
 						<p>Don't have an account? <a href="{{ url_for('create_account') }}">Register</a></p>
@@ -41,6 +43,45 @@
 			</form>
 		</div>
 	</div>
+
+ <div class="centerer">
+  <div class="popup popup-login">
+   <div class="popup-container">
+    <h2>Wrong password!</h2>
+
+    <div class="popup-yesno">
+     <a class="popup-yes login-ok">
+						Ok
+     </a>
+    </div>
+   </div>
+  </div>
+
+  <div class="popup popup-incomplete">
+   <div class="popup-container">
+    <h2>Please fill all input fields first!</h2>
+
+    <div class="popup-yesno">
+     <a class="popup-yes incomplete-ok">
+      Ok
+     </a>
+    </div>
+   </div>
+  </div>
+
+  <div class="popup popup-notfound">
+   <div class="popup-container">
+    <h2>Account not found! Please register first</h2>
+
+    <div class="popup-yesno">
+     <a class="popup-yes notfound-ok">
+      Ok
+     </a>
+    </div>
+   </div>
+  </div>
 </body>
+
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
 
 </html>
