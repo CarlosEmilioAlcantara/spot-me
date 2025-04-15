@@ -15,6 +15,7 @@ flatbuffers==24.3.25
 Font-Awesome-Flask==0.1.4
 fonttools==4.54.1
 gTTS==2.5.4
+gunicorn==23.0.0
 idna==3.10
 itsdangerous==2.2.0
 jax==0.4.35
