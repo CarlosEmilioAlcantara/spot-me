@@ -370,11 +370,11 @@ def analyze_bench_press(results, image):
                         tuple(np.multiply(coords["right_elbow"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
 
         distance_wrists, distance_elbows = get_distances("upper", coords)
 
@@ -383,7 +383,8 @@ def analyze_bench_press(results, image):
         distance_elbows_status = get_distance_elbows_status(
             exercise, distance_elbows) 
 
-        if similar and avg_angle >= 130 and stage[exercise] == "up" and \
+        # if similar and avg_angle >= 130 and stage[exercise] == "up" and \
+        if avg_angle >= 130 and stage[exercise] == "up" and \
             distance_wrists_status == "Neutral" and \
             distance_elbows_status == "Neutral":
             stage[exercise] = "down"
@@ -419,11 +420,11 @@ def analyze_dumbbell_bench_press(results, image):
                         tuple(np.multiply(coords["right_elbow"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
 
         distance_wrists, distance_elbows = get_distances("upper", coords)
 
@@ -435,7 +436,8 @@ def analyze_dumbbell_bench_press(results, image):
         
         
         # Count reps based on angle
-        if similar and avg_angle >= 110 and stage[exercise] == "up" and \
+        # if similar and avg_angle >= 110 and stage[exercise] == "up" and \
+        if avg_angle >= 110 and stage[exercise] == "up" and \
         distance_wrists_status == "Neutral" and \
             distance_elbows_status == "Neutral":
             stage[exercise] = "down"
@@ -475,11 +477,11 @@ def analyze_barbell_press(results, image, exercise):
                         tuple(np.multiply(coords["right_elbow"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
 
         distance_wrists, distance_elbows = get_distances("upper", coords)
 
@@ -489,7 +491,8 @@ def analyze_barbell_press(results, image, exercise):
             exercise, distance_elbows)
         
         # Count reps based on angle
-        if similar and avg_angle >= 140 and stage[exercise] == "up" and \
+        # if similar and avg_angle >= 140 and stage[exercise] == "up" and \
+        if avg_angle >= 140 and stage[exercise] == "up" and \
             distance_wrists_status == "Neutral" and \
             distance_elbows_status == "Neutral":
             stage[exercise] = "down"
@@ -527,11 +530,11 @@ def analyze_lateral_raises(results, image):
                         tuple(np.multiply(coords["right_elbow"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
 
         distance_left, distance_right = get_distances("lateral_raises", coords)
 
@@ -542,7 +545,8 @@ def analyze_lateral_raises(results, image):
         
 
         # Count reps based on angle
-        if similar and avg_angle <= 7 and stage[exercise] == "up" and \
+        # if similar and avg_angle <= 7 and stage[exercise] == "up" and \
+        if avg_angle <= 7 and stage[exercise] == "up" and \
             distance_wrists_status == "Neutral" and \
             distance_elbows_status == "Neutral":
             stage[exercise] = "down"
@@ -580,11 +584,11 @@ def analyze_barbell_rows(results, image):
                         tuple(np.multiply(coords["right_elbow"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
 
         distance_wrists, distance_elbows = get_distances("upper", coords)
       
@@ -594,7 +598,8 @@ def analyze_barbell_rows(results, image):
             exercise, distance_elbows)
       
 
-        if similar and avg_angle <= 130 and stage[exercise] == "up" and \
+        # if similar and avg_angle <= 130 and stage[exercise] == "up" and \
+        if avg_angle <= 130 and stage[exercise] == "up" and \
             distance_wrists_status == "Neutral" and \
             distance_elbows_status == "Neutral":
             stage[exercise] = "down"
@@ -632,11 +637,11 @@ def analyze_pullups(results, image):
                         tuple(np.multiply(coords["right_elbow"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
 
         distance_wrists, distance_elbows = get_distances("upper", coords)
 
@@ -687,11 +692,11 @@ def analyze_squat(results, image):
                         tuple(np.multiply(coords["right_knee"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
 
         distance_knees, distance_ankles = get_distances("lower", coords)
 
@@ -706,7 +711,8 @@ def analyze_squat(results, image):
             stage[exercise] = "down"
 
         # Squatting
-        if similar and avg_angle <= 120 and stage[exercise] == "down" and \
+        # if similar and avg_angle <= 120 and stage[exercise] == "down" and \
+        if avg_angle <= 120 and stage[exercise] == "down" and \
             distance_knees_status == "Neutral" and \
             distance_ankles_status == "Neutral":
             stage[exercise] = "up"
@@ -743,11 +749,11 @@ def analyze_deadlift(results, image):
                         tuple(np.multiply(coords["right_knee"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
                  
         distance_knees, distance_ankles = get_distances("lower", coords)
 
@@ -762,7 +768,8 @@ def analyze_deadlift(results, image):
             stage[exercise] = "up"
 
         # Squatting
-        if similar and avg_angle >= 160 and stage[exercise] == "up" and \
+        # if similar and avg_angle >= 160 and stage[exercise] == "up" and \
+        if avg_angle >= 160 and stage[exercise] == "up" and \
             distance_knees_status == "Neutral" and \
             distance_ankles_status == "Neutral":
             stage[exercise] = "down"
