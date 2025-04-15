@@ -224,6 +224,7 @@ def logout():
 #### FORM ANALYSIS
 ################################################################################
 import cv2
+import base64
 import mediapipe as mp
 import numpy as np
 
@@ -231,7 +232,7 @@ from threading import Event
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
-camera = cv2.VideoCapture(0)
+# camera = cv2.VideoCapture(0)
 
 from functions.face_detection.face_detection import detect_face
 from functions.coordinates.coordinates import get_coords
@@ -307,21 +308,11 @@ def analyze_barbell_curl(results, image, exercise):
                         tuple(np.multiply(coords["right_elbow"], [640, 480]).astype(int)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        similar = detect_face(image)
-        if not similar:
-            cv2.putText(image, "Unauthorized person detected!", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 69, 255), 2, cv2.LINE_AA) 
-
-        # Count reps based on angle
-        if similar and avg_angle >= 150:  
-            stage[exercise] = "down"
-
-        if similar and avg_angle <= 30 and stage[exercise] == "down" and \
-            distance_wrists_status == "Neutral" and \
-            distance_elbows_status == "Neutral":
-            stage[exercise] = "up"
-            counter[exercise] += 1
+        # similar = detect_face(image)
+        # if not similar:
+        #     cv2.putText(image, "Unauthorized person detected!", 
+        #                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 69, 255), 2, cv2.LINE_AA) 
 
         distance_wrists, distance_elbows = get_distances("upper", coords)
 
@@ -329,8 +320,6 @@ def analyze_barbell_curl(results, image, exercise):
             exercise, distance_wrists)
         distance_elbows_status = get_distance_elbows_status(
             exercise, distance_elbows)
-
-       
 
         # Count reps based on angle
         if avg_angle >= 150:  
@@ -786,28 +775,24 @@ def analyze_deadlift(results, image):
         return "Error", counter[exercise]       
 
 # Modular frame creation function
-def create_frames(exercise):
-    pause_event.clear()
+@app.route("/process_frames/<exercise>", methods=["POST"])
+def process_frames(exercise):
+    # Get the base64-encoded image data from the request
+    data = request.get_json()
+    img_data = base64.b64decode(data['image'].split(',')[1])
+    nparr = np.frombuffer(img_data, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-    with mp_pose.Pose(
-        min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+    # Process the image with MediaPipe Pose
+    with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+        # Convert the image to RGB (MediaPipe expects RGB images)
+        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        results = pose.process(rgb_image)
 
-        while True:
-            if not pause_event.is_set():
-                continue
+        # Draw pose landmarks
+        if results.pose_landmarks:
+            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-            ret, frame = camera.read()
-            if not ret:
-                break
-
-            # if exercise == "dumbbell_bench_press":
-            #     frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-                
-            image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image.flags.writeable = False
-            results = pose.process(image)
-            image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
             # Analyze based on selected exercise
             match exercise:
@@ -833,18 +818,17 @@ def create_frames(exercise):
                     analyze_squat(results, image)
                 case "deadlift":
                     analyze_deadlift(results, image)                
-                    
+                        
             # if exercise == "dumbbell_bench_press":
             #     image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                
-            # Draw pose landmarks
-            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-                
-            _, buffer = cv2.imencode(".jpg", image)
-            frame = buffer.tobytes()
 
-            yield (b"--frame\r\n"
-                   b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+    # Encode the processed image to base64
+    _, buffer = cv2.imencode('.jpg', image)
+    processed_image_data = base64.b64encode(buffer).decode('utf-8')
+
+    return jsonify({
+        "processed_image": f"data:image/jpeg;base64,{processed_image_data}"
+    })
 
 ################################################################################
 #### EXERCISE ROUTES
@@ -942,9 +926,9 @@ def deadlift():
 def video_feed():
     return render_template("video_feed.html")
 
-@app.route("/video/<exercise>")
-def video(exercise):
-    return Response(create_frames(exercise), mimetype="multipart/x-mixed-replace; boundary=frame")
+# @app.route("/video/<exercise>")
+# def video(exercise):
+#     return Response(create_frames(exercise), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 @app.route("/toggle_pause", methods=["POST"])
 def toggle_pause():
